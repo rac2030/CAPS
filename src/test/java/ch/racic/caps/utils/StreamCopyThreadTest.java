@@ -25,7 +25,7 @@ public class StreamCopyThreadTest {
     @Test
     public void testStreamCopy() throws Exception {
         //TODO: Test goes here...
-        Assert.fail();
+        Assert.fail("Not implemented");
     }
 
 } 

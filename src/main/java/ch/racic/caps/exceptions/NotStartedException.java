@@ -11,7 +11,12 @@ package ch.racic.caps.exceptions;
  */
 public class NotStartedException extends RuntimeException {
 
-    public NotStartedException(String s) {
-        super(s);
+    /**
+     * Used if server could not have been started with the given timeouts.
+     *
+     * @param msg Message with reason
+     */
+    public NotStartedException(String msg) {
+        super(msg);
     }
 }

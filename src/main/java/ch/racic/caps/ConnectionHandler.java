@@ -43,6 +43,15 @@ public class ConnectionHandler extends Thread {
     private StreamCopyThread client2targetCopy, target2clientCopy;
     private int bufferSize;
 
+    /**
+     * Handles a single incoming connection. It determines if HTTP or a SSL CONNECT command has been sent, creates the
+     * desired target socket and kicks off the stream copy. In case of errors it will send an appropriate HTML error
+     * response to the client socket.
+     *
+     * @param clientSocket
+     * @param configuration
+     * @param connectionHandlerGroup
+     */
     public ConnectionHandler(final Socket clientSocket, final ICapsConfiguration configuration, ThreadGroup connectionHandlerGroup) {
         // Calling super with the Thread group to add it
         super(connectionHandlerGroup, "CapsConnectionHandler-" + ++connectionCounter);
@@ -68,6 +77,12 @@ public class ConnectionHandler extends Thread {
         }
     }
 
+    /**
+     * Interruptible method which is used to catch the Interrupt in the run method and handle it properly with a
+     * shutdown.
+     *
+     * @throws InterruptedException
+     */
     private void interruptibleRun() throws InterruptedException {
         final byte[] buffer = new byte[bufferSize];
 
@@ -250,6 +265,14 @@ public class ConnectionHandler extends Thread {
 
     }
 
+    /**
+     * Sends a properly formatted HTML error response to the output stream.
+     *
+     * @param message
+     * @param status
+     * @param outputStream
+     * @throws IOException
+     */
     private void sendHTTPErrorResponse(final HTMLElement message,
                                        final String status,
                                        final OutputStream outputStream)
@@ -263,6 +286,9 @@ public class ConnectionHandler extends Thread {
     }
 
 
+    /**
+     * Interrupt all stream copy threads and close all opened sockets
+     */
     private void shutdown() {
         if (client2targetCopy != null)
             client2targetCopy.interrupt();

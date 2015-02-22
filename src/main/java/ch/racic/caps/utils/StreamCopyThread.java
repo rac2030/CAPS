@@ -24,6 +24,14 @@ public class StreamCopyThread extends Thread {
     private final byte[] buffer;
     private final boolean closeStreams;
 
+    /**
+     * Thread used to copy all content from an InputStream to an OutputStream.
+     *
+     * @param in           InputStream
+     * @param out          OutputStream
+     * @param bufferSize   Size of the buffer that is used to read from the InputStream
+     * @param closeStreams Close involved Streams once this thread finishes normally or because of interruption
+     */
     public StreamCopyThread(final InputStream in, final OutputStream out, final int bufferSize, final boolean closeStreams) {
         super("StreamCopyThread-" + ++connectionCounter);
 

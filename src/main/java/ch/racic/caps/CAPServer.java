@@ -92,6 +92,9 @@ public class CAPServer extends Thread {
         return cs;
     }
 
+    /**
+     * The main loop thread which starts the server and listens for new socket connections until it gets shutdown.
+     */
     public synchronized void run() {
         try {
             startProxyServer();
@@ -159,6 +162,9 @@ public class CAPServer extends Thread {
     }
 
     /**
+     * Get the current proxy port, will be null if proxy startup is not yet finished or not initiated. Use @see
+     * bringItUpRunning for a synced start, after this getProxyListener port will return you the actual port for sure.
+     *
      * @return port or null if proxy is not yet started
      */
     public Integer getProxyListenerPort() {
