@@ -8,14 +8,16 @@ import org.junit.Test;
 /**
  * CapsConfiguration Tester.
  *
- * @author <Authors name>
+ * @author Michel Racic
  * @version 1.0
  * @since <pre>Feb 22, 2015</pre>
  */
 public class CapsConfigurationTest {
+    private CapsConfiguration conf;
 
     @Before
     public void setUp() throws Exception {
+        conf = new CapsConfiguration();
     }
 
     @After
@@ -32,114 +34,6 @@ public class CapsConfigurationTest {
     }
 
     /**
-     * Method: setTargetSslContext(SSLContext targetSslContext)
-     */
-    @Test
-    public void testSetTargetSslContext() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetTrustStorePath(String targetTrustStorePath)
-     */
-    @Test
-    public void testSetTargetTrustStorePath() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetTrustStorePassword(String targetTrustStorePassword)
-     */
-    @Test
-    public void testSetTargetTrustStorePassword() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetTrustStoreType(String targetTrustStoreType)
-     */
-    @Test
-    public void testSetTargetTrustStoreType() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetKeyStorePath(String targetKeyStorePath)
-     */
-    @Test
-    public void testSetTargetKeyStorePath() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetKeyStorePassword(String targetKeyStorePassword)
-     */
-    @Test
-    public void testSetTargetKeyStorePassword() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetKeyStoreType(String targetKeyStoreType)
-     */
-    @Test
-    public void testSetTargetKeyStoreType() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: getTargetProxy()
-     */
-    @Test
-    public void testGetTargetProxy() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setTargetProxy(Proxy targetProxy)
-     */
-    @Test
-    public void testSetTargetProxy() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setProxyKeyStorePath(String proxyKeyStorePath)
-     */
-    @Test
-    public void testSetProxyKeyStorePath() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setProxyKeyStorePassword(String proxyKeyStorePassword)
-     */
-    @Test
-    public void testSetProxyKeyStorePassword() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setProxyKeyStoreType(String proxyKeyStoreType)
-     */
-    @Test
-    public void testSetProxyKeyStoreType() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
      * Method: getProxySslContext()
      */
     @Test
@@ -147,52 +41,6 @@ public class CapsConfigurationTest {
         //TODO: Test goes here...
         Assert.fail();
     }
-
-    /**
-     * Method: setProxySslContext(SSLContext proxySslContext)
-     */
-    @Test
-    public void testSetProxySslContext() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: getProxyListenerPort()
-     */
-    @Test
-    public void testGetProxyListenerPort() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setProxyListenerPort(int proxyListenerPort)
-     */
-    @Test
-    public void testSetProxyListenerPort() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: getConnectionTimeout()
-     */
-    @Test
-    public void testGetConnectionTimeout() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
-     * Method: setConnectionTimeout(long connectionTimeout)
-     */
-    @Test
-    public void testSetConnectionTimeout() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
 
     /**
      * Method: getTargetTrustManager()

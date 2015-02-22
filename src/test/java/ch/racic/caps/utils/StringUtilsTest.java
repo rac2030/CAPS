@@ -1,35 +1,43 @@
 package ch.racic.caps.utils;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 
 /**
  * StringUtils Tester.
  *
- * @author <Authors name>
+ * @author Michel Racic
  * @version 1.0
  * @since <pre>Feb 22, 2015</pre>
  */
 public class StringUtilsTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
+    /**
+     * Method: replaceLast(final String text, final String regex, final String replacement)
+     */
+    @Test
+    public void testReplaceLastSimpleStringSingle() throws Exception {
+        String testString = "ch.racic.caps.resources/certs/server.p12";
+        String testRegex = "p12";
+        String testReplacement = "pwd";
+        String expectedString = "ch.racic.caps.resources/certs/server.pwd";
+        String modifiedString = StringUtils.replaceLast(testString, testRegex, testReplacement);
+        assertThat(modifiedString, equalToIgnoringWhiteSpace(expectedString));
     }
 
     /**
      * Method: replaceLast(final String text, final String regex, final String replacement)
      */
     @Test
-    public void testReplaceLast() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
+    public void testReplaceLastSimpleStringMultiple() throws Exception {
+        String testString = "ch.racic.caps.resources.p12/certs/p12/server.p12";
+        String testRegex = "p12";
+        String testReplacement = "pwd";
+        String expectedString = "ch.racic.caps.resources.p12/certs/p12/server.pwd";
+        String modifiedString = StringUtils.replaceLast(testString, testRegex, testReplacement);
+        assertThat(modifiedString, equalToIgnoringWhiteSpace(expectedString));
     }
-
 
 } 

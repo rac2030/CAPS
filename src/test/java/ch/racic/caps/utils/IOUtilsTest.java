@@ -1,26 +1,21 @@
 package ch.racic.caps.utils;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+
+import java.io.InputStream;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 
 /**
  * IOUtils Tester.
  *
- * @author <Authors name>
+ * @author Michel Racic
  * @version 1.0
  * @since <pre>Feb 22, 2015</pre>
  */
 public class IOUtilsTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
 
     /**
      * Method: toString(InputStream in, String encoding)
@@ -36,8 +31,10 @@ public class IOUtilsTest {
      */
     @Test
     public void testToStringIn() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
+        InputStream testInputStream = getClass().getClassLoader().getResourceAsStream("certs/client.p12.pwd");
+        String expectedString = "test";
+        String result = IOUtils.toString(testInputStream);
+        assertThat(result, equalToIgnoringWhiteSpace(expectedString));
     }
 
     /**
@@ -54,8 +51,9 @@ public class IOUtilsTest {
      */
     @Test
     public void testResourceAsStringPath() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
+        String expectedString = "test";
+        String result = IOUtils.resourceAsString("certs/client.p12.pwd");
+        assertThat(result, equalToIgnoringWhiteSpace(expectedString));
     }
 
 
