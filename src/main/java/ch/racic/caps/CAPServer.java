@@ -1,267 +1,190 @@
+/*
+ * Copyleft (c) 2015. This code is for learning purposes only.
+ * Do whatever you like with it but don't take it as perfect code.
+ * //Michel Racic (http://rac.su/+)//
+ */
+
 package ch.racic.caps;
 
-import org.apache.log4j.Level;
+import ch.racic.caps.exceptions.NotStartedException;
 import org.apache.log4j.Logger;
 
-import java.io.File;
+import javax.naming.ConfigurationException;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 /**
- * @Author Michel Racic (m@rac.su) Date: 12.08.12
+ * Created by rac on 08.02.15.
  */
 public class CAPServer extends Thread {
+
     /**
      * Logging helper
      */
     private static final Logger logger = Logger.getLogger(CAPServer.class);
+    // TODO get those values from the pom file while deploying
+    public static String PROJECT_NAME = "CAPS";
+    public static String PROJECT_VERSION = "0.1-SNAPSHOT";
+    private static volatile long connectionCounter = 0;
+    private final ICapsConfiguration configuration;
+    private volatile Boolean running = false;
+    private ServerSocket serverSocket;
+    private volatile int proxyListenerPort;
+    private volatile ThreadGroup connectionHandlerGroup = new ThreadGroup("CAPS connection handlers");
+
 
     /**
-     * Singleton variable *
+     * CAPS main thread constructor Initialize the server with a configuration object and use the start() method to
+     * start listening. After using it, you can use the shutdown() method to initiate the shutdown of the server which
+     * interrupts all connection handler threads and closes the sockets.
+     * <p/>
+     * <pre>
+     *     capsConf = new CapsConfiguration()
+     *               .setTargetKeyStorePath("certs/test.p12")
+     *               .setTargetKeyStorePassword("testPassword");
+     *     CAPServer cs = new CAPServer(capsConf);
+     *     cs.start();
+     *     ... do whatever tests you want to do ...
+     *     // Getting a proxy object to use in selenium
+     *     String proxyString = "localhost:" + cs.getProxyListenerPort();
+     *     org.openqa.selenium.Proxy proxy = new Proxy().setSslProxy(proxyString).setHttpProxy(proxyString)
+     *     DesiredCapabilities caps = DesiredCapabilities.htmlUnit();
+     *     caps.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+     *     caps.setCapability(CapabilityType.PROXY, proxy);
+     *     HtmlUnitDriver d = new HtmlUnitDriver(caps);
+     *     ...
+     *     cs.shutdown();
+     * </pre>
+     *
+     * @param configuration
      */
-    private static CAPServer instance;
-    private static boolean inShutdown        = false;
-
+    public CAPServer(final ICapsConfiguration configuration) {
+        super("CAPServer-" + ++connectionCounter);
+        this.configuration = configuration;
+    }
 
     /**
-     * Singleton accessor *
+     * Factory to instantiate the proxy, start it and wait until it is listening prior to returning with the CAPS
+     * instance.
+     *
+     * @param conf
+     * @return CAPServer instance which is already listening
+     * @throws InterruptedException
+     * @throws CertificateException
+     * @throws UnrecoverableKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     * @throws KeyManagementException
+     * @throws KeyStoreException
+     * @throws ConfigurationException
      */
-    public static CAPServer getInstance() {
-        if (instance == null)
-            instance = new CAPServer();
-        return instance;
+    public static synchronized CAPServer bringItUpRunning(CapsConfiguration conf) throws InterruptedException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, ConfigurationException {
+        final CAPServer cs = new CAPServer(conf);
+        cs.startProxyServer();
+        cs.start();
+        if (cs.getProxyListenerPort() == null)
+            throw new NotStartedException("The starting sequence of the proxy did not work, socket is not listening");
+        return cs;
     }
 
-    /**
-     * Config variables *
-     */
-    private int     listenerPort = 8081; //Defaults to 8081 if no port is set
-    private boolean debug        = false, debugSSL = false;
-    private boolean silent = true;
+    public synchronized void run() {
+        try {
+            startProxyServer();
+            running = true;
+            while (running) {
+                // handle accepts
+                new ConnectionHandler(serverSocket.accept(), configuration, connectionHandlerGroup).start();
 
-    /**
-     * SSL config *
-     */
-    private File   trustStoreFile     = null;
-    private String trustStorePassword = null;
-    private File   keyStoreFile       = null;
-    private String keyStorePassword   = null;
-    private String keyStoreType       = null;
-
-    /**
-     * State variables *
-     */
-    private boolean listening         = false;
-    private int     connectionThreads = 0;
-
-    /**
-     * Objects *
-     */
-    private ServerSocket serverSocket = null;
-
-    public CAPServer() {
-    }
-
-    public static void main(String[] args) throws IOException {
-        CAPServer cs = new CAPServer();
-        cs.setDebug(true);
-        cs.setSilent(false);
-        cs.startProxy(true);
-    }
-
-    public synchronized int getListenerPort() {
-        return getInstance().listenerPort;
-    }
-
-    public synchronized void setListenerPort(int listenerPort) {
-        getInstance().listenerPort = listenerPort;
-    }
-
-    public synchronized boolean isDebug() {
-        return getInstance().debug;
-    }
-
-    public synchronized void setDebug(boolean debug) {
-        getInstance().debug = debug;
-        if(debug) {
-            logger.setLevel(Level.DEBUG);
-        }
-    }
-
-    public synchronized boolean isDebugSSL() {
-        return getInstance().debugSSL;
-    }
-
-    public synchronized void setDebugSSL(boolean debugSSL) {
-        getInstance().debugSSL = debugSSL;
-    }
-
-    public synchronized boolean isSilent() {
-        return getInstance().silent;
-    }
-
-    public synchronized void setSilent(boolean silent) {
-        getInstance().silent = silent;
-    }
-
-    public synchronized File getTrustStoreFile() {
-        return getInstance().trustStoreFile;
-    }
-
-    public synchronized void setTrustStoreFile(File trustStoreFile) {
-        getInstance().trustStoreFile = trustStoreFile;
-    }
-
-    public synchronized String getTrustStorePassword() {
-        return getInstance().trustStorePassword;
-    }
-
-    public synchronized void setTrustStorePassword(String trustStorePassword) {
-        getInstance().trustStorePassword = trustStorePassword;
-    }
-
-    public synchronized File getKeyStoreFile() {
-        return getInstance().keyStoreFile;
-    }
-
-    public synchronized void setKeyStoreFile(File keyStoreFile) {
-        getInstance().keyStoreFile = keyStoreFile;
-    }
-
-    public synchronized String getKeyStorePassword() {
-        return getInstance().keyStorePassword;
-    }
-
-    public synchronized void setKeyStorePassword(String keyStorePassword) {
-        getInstance().keyStorePassword = keyStorePassword;
-    }
-
-    public synchronized String getKeyStoreType() {
-        return getInstance().keyStoreType;
-    }
-
-    public synchronized void setKeyStoreType(String keyStoreType) {
-        getInstance().keyStoreType = keyStoreType;
-    }
-
-   public synchronized void startProxy(boolean listening) {
-        while(inShutdown) {
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                logger.warn("Sleep got interupted", e);
             }
-        }
-        getInstance().start();
-        getInstance().listening = listening;
-    }
 
-    public synchronized void startProxyListening() {
-        stopProxyListening();
-        getInstance().listening = true;
-    }
-
-    public synchronized void stopProxy() {
-        inShutdown = true;
-        stopProxyListening();
-        while (instance != null) {
+        } catch (Exception e) {
+            running = false;
+            logger.error("Fatal exception in CAPServer", e);
+        } finally {
             try {
-                sleep(1000);
-            } catch (InterruptedException e) {
-                logger.warn("Sleep got interupted", e);
-            }
-        }
-    }
-
-    public synchronized void stopProxyListening() {
-        if (getInstance().listening) {
-            getInstance().listening = false;
-        }
-        boolean forceShutdown = false;
-        long waitLimit = 10000;
-        long alreadyWaited = 0;
-        boolean loopCondition = !forceShutdown?(getInstance().connectionThreads > 0):forceShutdown;
-        while (loopCondition) {
-            try {
-                sleep(100);
-                alreadyWaited += 100;
-                if (alreadyWaited >= waitLimit)
-                    forceShutdown = true;
-            } catch (InterruptedException e) {
-                logger.warn("Sleep got interupted", e);
-            }
-            loopCondition = !forceShutdown?(getInstance().connectionThreads > 0):forceShutdown;
-        }
-        if (getInstance().serverSocket != null) {
-            try {
-                getInstance().serverSocket.close();
-                getInstance().serverSocket = null;
-
+                stopProxyServer();
             } catch (IOException e) {
-                logger.error("Socket error", e);
+                connectionHandlerGroup.uncaughtException(this, e);
             }
         }
     }
 
-    public synchronized void ptStartNotification() {
-        getInstance().connectionThreads++;
-        if (getInstance().debug) {
-            logger.info("OpenConnectionThreads[" + getInstance().connectionThreads + "]");
+    /**
+     * Create a server socket to be used for incoming connections from clients.
+     *
+     * @throws IOException
+     * @throws CertificateException
+     * @throws UnrecoverableKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws ConfigurationException
+     */
+    private synchronized void startProxyServer() throws IOException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, ConfigurationException {
+        if (serverSocket != null) {
+            return;
         }
+        // create the server socket based on the configuration
+        serverSocket = new ServerSocket(configuration.getProxyListenerPort());
+        serverSocket.setReuseAddress(true);
+        // Setting the port allocated by the socket, in case the configuration was default on 0, it will use any free port
+        proxyListenerPort = serverSocket.getLocalPort();
     }
 
-    public synchronized void ptStopNotification() {
-        getInstance().connectionThreads--;
-        if (getInstance().debug)
-            logger.info("OpenConnectionThreads[" + getInstance().connectionThreads + "]");
+    /**
+     * Send a interrupt to all connection handlers and close the server socket.
+     *
+     * @throws IOException
+     */
+    private synchronized void stopProxyServer() throws IOException {
+        // Interrupt all Connection threads
+        connectionHandlerGroup.interrupt();
+        if (!serverSocket.isClosed())
+            serverSocket.close();
+        serverSocket = null;
+        Thread.currentThread().interrupt();
     }
 
-    public void run() {
-        while (!inShutdown) {
-            if (listening) {
-                try {
-                    try {
-                        serverSocket = new ServerSocket(getInstance().listenerPort);
-                        serverSocket.setReuseAddress(true);
-                        logger.info("ClientCertificate SSL Injecting Proxy Started on port: " + getInstance().listenerPort);
-                    } catch (IOException e) {
-                        logger.info("Could not listen on port: " + getInstance().listenerPort);
-                        return;
-                    }
-
-                    while (getInstance().listening) {
-                        ProxyThread p = new ProxyThread(serverSocket.accept());
-                        p.setDebug(getInstance().isDebug());
-                        p.setDebugSSL(getInstance().isDebugSSL());
-                        p.setSilent(getInstance().isSilent());
-                        p.setTrustStoreFile(getInstance().getTrustStoreFile());
-                        p.setTrustStorePassword(getInstance().getTrustStorePassword());
-                        p.setKeyStoreFile(getInstance().getKeyStoreFile());
-                        p.setKeyStorePassword(getInstance().getKeyStorePassword());
-                        p.setKeyStoreType((getInstance().getKeyStoreType() != null) ? getInstance().getKeyStoreType() : "pkcs12");
-                        p.start();
-                    }
-
-                } catch (IOException e) {
-                    logger.error("IOException in socket", e);
-                } finally {
-                    if (getInstance().serverSocket != null) {
-                        try {
-                            getInstance().serverSocket.close();
-                            getInstance().serverSocket = null;
-                        } catch (IOException e) {
-                            e.printStackTrace();// IGNORE
-                        }
-                    }
-                }
-            }
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                logger.warn("Sleep got interupted", e);
-            }
-        }
-        instance = null;
-        inShutdown = false;
+    /**
+     * Initiate shutdown of the proxy server. This will send interrupts to all processing threads and closes the
+     * sockets.
+     */
+    public void shutdown() {
+        running = false;
     }
+
+    /**
+     * @return port or null if proxy is not yet started
+     */
+    public Integer getProxyListenerPort() {
+        if (proxyListenerPort == 0)
+            return null;
+        else
+            return proxyListenerPort;
+    }
+
+    /**
+     * The proxy string has the form {hostname}:{port} and can be used to create a selenium proxy object.
+     * <pre>
+     *     String proxyString = cs.getProxyString();
+     *     org.openqa.selenium.Proxy proxy = new Proxy().setSslProxy(proxyString).setHttpProxy(proxyString);
+     *     DesiredCapabilities caps = DesiredCapabilities.htmlUnit();
+     *     caps.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+     *     caps.setCapability(CapabilityType.PROXY, proxy);
+     * </pre>
+     *
+     * @return
+     */
+    public String getProxyString() {
+        if (proxyListenerPort == 0)
+            return null;
+        else
+            return serverSocket.getInetAddress().getHostName() + ":" + getProxyListenerPort();
+    }
+
 }

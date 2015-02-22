@@ -8,6 +8,7 @@
 # InteliJ generated folders
 out/**
 target/**
-CAPS.iws
-
+*.iws
+*.iml
+*.ipr
 logs/**
