@@ -57,23 +57,18 @@ public class StreamCopyThread extends Thread {
         try {
             in.close();
         } catch (IOException e) {
-            logger.warn("IOException while closing InputStream", e);
+            logger.debug("IOException while closing InputStream", e);
         }
         try {
             out.close();
         } catch (IOException e) {
-            logger.warn("IOException while closing OutputStream", e);
+            logger.debug("IOException while closing OutputStream", e);
         }
     }
 
     private void interruptibleRun() throws InterruptedException {
         try {
             while (true) {
-                final int available = in.available();
-                //how much should we read to not cause an IOException while reading?
-
-                //final int readLength = (available > buffer.length) ? buffer.length : available;
-
                 final int bytesRead = in.read(buffer, 0, buffer.length);
 
                 if (bytesRead == -1) {
