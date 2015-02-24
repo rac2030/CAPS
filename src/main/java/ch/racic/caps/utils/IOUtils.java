@@ -6,6 +6,8 @@
 
 package ch.racic.caps.utils;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,6 +17,7 @@ import java.io.InputStream;
 public class IOUtils {
     private static final int BUFFER = 4096;
     private static final String DEFAULT_ENCODING = "UTF-8";
+    private static Logger log = Logger.getLogger(IOUtils.class);
 
     /**
      * Simple looper which takes an InputStream fully and returns it as String.
@@ -58,6 +61,11 @@ public class IOUtils {
      * @throws IOException
      */
     public static String resourceAsString(String path, String encoding) throws IOException {
+        InputStream pathStream = IOUtils.class.getClassLoader().getResourceAsStream(path);
+        if (pathStream == null) {
+            log.error("Resource " + path + " could not be found, make sure it is a relative path on the classpath");
+            return "";
+        }
         return toString(IOUtils.class.getClassLoader().getResourceAsStream(path), encoding);
     }
 
