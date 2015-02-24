@@ -1,12 +1,12 @@
 package ch.racic.caps.utils;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.InputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+
 
 /**
  * IOUtils Tester.
@@ -18,15 +18,6 @@ import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 public class IOUtilsTest {
 
     /**
-     * Method: toString(InputStream in, String encoding)
-     */
-    @Test
-    public void testToStringForInEncoding() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
-    }
-
-    /**
      * Method: toString(InputStream in)
      */
     @Test
@@ -35,15 +26,6 @@ public class IOUtilsTest {
         String expectedString = "test";
         String result = IOUtils.toString(testInputStream);
         assertThat(result, equalToIgnoringWhiteSpace(expectedString));
-    }
-
-    /**
-     * Method: resourceAsString(String path, String encoding)
-     */
-    @Test
-    public void testResourceAsStringForPathEncoding() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
     }
 
     /**
