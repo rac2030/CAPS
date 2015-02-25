@@ -1,9 +1,12 @@
 package ch.racic.caps;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import javax.naming.ConfigurationException;
 
 /**
  * CapsConfiguration Tester.
@@ -13,6 +16,12 @@ import org.junit.Test;
  * @since <pre>Feb 22, 2015</pre>
  */
 public class CapsConfigurationTest {
+    private static String CERT_SERVER = "ch.racic.caps.resources/certs/server.p12";
+    private static String CERT_SERVER_TYPE = "pkcs12";
+    private static String CERT_CLIENT = "certs/client.p12";
+    private static String CERT_CLIENT_TYPE = "pkcs12";
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     private CapsConfiguration conf;
 
     @Before
@@ -28,75 +37,29 @@ public class CapsConfigurationTest {
      * Method: getTargetSslContext()
      */
     @Test
-    public void testGetTargetSslContext() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
+    public void testGetTargetSslContextNoException() throws Exception {
+        conf.setTargetKeyStorePath(CERT_CLIENT).setTargetKeyStoreType(CERT_CLIENT_TYPE);
+        conf.getTargetSslContext();
     }
+
+    /**
+     * Method: getTargetSslContext()
+     */
+    @Test
+    public void testGetTargetSslContextNoKeyStorePathException() throws Exception {
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("No target KeyStore path has been set");
+        conf.getTargetSslContext();
+    }
+
 
     /**
      * Method: getProxySslContext()
      */
     @Test
-    public void testGetProxySslContext() throws Exception {
-        //TODO: Test goes here...
-        Assert.fail();
+    public void testGetProxySslContextDefaultNoException() throws Exception {
+        conf.getProxySslContext();
     }
 
-    /**
-     * Method: getTargetTrustManager()
-     */
-    @Test
-    public void testGetTargetTrustManager() throws Exception {
-        //TODO: Test goes here...
-     /* 
-     try { 
-        Method method = CapsConfiguration.getClass().getMethod("getTargetTrustManager"); 
-        method.setAccessible(true); 
-        method.invoke(<Object>, <Parameters>); 
-     } catch(NoSuchMethodException e) { 
-     } catch(IllegalAccessException e) { 
-     } catch(InvocationTargetException e) { 
-     } 
-     */
-        Assert.fail();
-    }
-
-    /**
-     * Method: getTargetKeyManager()
-     */
-    @Test
-    public void testGetTargetKeyManager() throws Exception {
-        //TODO: Test goes here...
-     /* 
-     try { 
-        Method method = CapsConfiguration.getClass().getMethod("getTargetKeyManager"); 
-        method.setAccessible(true); 
-        method.invoke(<Object>, <Parameters>); 
-     } catch(NoSuchMethodException e) { 
-     } catch(IllegalAccessException e) { 
-     } catch(InvocationTargetException e) { 
-     } 
-     */
-        Assert.fail();
-    }
-
-    /**
-     * Method: getProxyKeyManager()
-     */
-    @Test
-    public void testGetProxyKeyManager() throws Exception {
-        //TODO: Test goes here...
-     /* 
-     try { 
-        Method method = CapsConfiguration.getClass().getMethod("getProxyKeyManager"); 
-        method.setAccessible(true); 
-        method.invoke(<Object>, <Parameters>); 
-     } catch(NoSuchMethodException e) { 
-     } catch(IllegalAccessException e) { 
-     } catch(InvocationTargetException e) { 
-     } 
-     */
-        Assert.fail();
-    }
 
 } 
