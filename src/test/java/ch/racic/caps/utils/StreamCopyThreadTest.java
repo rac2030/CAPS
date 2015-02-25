@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -31,14 +30,14 @@ public class StreamCopyThreadTest {
     @Test
     public void testSimpleString() throws Exception {
         String testString = RandomStringUtils.randomAscii(5000000);
-        ByteArrayInputStream in = new ByteArrayInputStream(testString.getBytes(StandardCharsets.UTF_8));
+        ByteArrayInputStream in = new ByteArrayInputStream(testString.getBytes("UTF-8"));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         StreamCopyThread sct = new StreamCopyThread(in, out, 40960, false);
         sct.start();
         sct.join();
         in.close();
         out.close();
-        String transportedResult = out.toString(StandardCharsets.UTF_8.name());
+        String transportedResult = out.toString("UTF-8");
         assertThat("Output String is the same as InputString", testString.equals(transportedResult));
     }
 
