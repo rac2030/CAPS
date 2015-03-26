@@ -17,6 +17,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by rac on 08.02.15.
@@ -27,15 +30,14 @@ public class CAPServer extends Thread {
      * Logging helper
      */
     private static final Logger logger = Logger.getLogger(CAPServer.class);
-    // TODO get those values from the pom file while deploying
-    public static String PROJECT_NAME = "CAPS";
-    public static String PROJECT_VERSION = "0.1-SNAPSHOT";
+    public static String PROJECT_NAME = CAPServer.class.getPackage().getImplementationTitle();
+    public static String PROJECT_VERSION = CAPServer.class.getPackage().getImplementationVersion();
     private static volatile long connectionCounter = 0;
+    private static ExecutorService executor;
     private final ICapsConfiguration configuration;
     private volatile Boolean running = false;
     private ServerSocket serverSocket;
     private volatile int proxyListenerPort;
-    private volatile ThreadGroup connectionHandlerGroup = new ThreadGroup("CAPS connection handlers");
 
 
     /**
@@ -97,11 +99,13 @@ public class CAPServer extends Thread {
      */
     public synchronized void run() {
         try {
+            // Setting the executor with the thread pool size
+            executor = Executors.newFixedThreadPool(configuration.getThreadPoolSize());
             startProxyServer();
             running = true;
             while (running) {
                 // handle accepts
-                new ConnectionHandler(serverSocket.accept(), configuration, connectionHandlerGroup).start();
+                executor.execute(new ConnectionHandler(serverSocket.accept(), configuration));
 
             }
 
@@ -112,7 +116,9 @@ public class CAPServer extends Thread {
             try {
                 stopProxyServer();
             } catch (IOException e) {
-                connectionHandlerGroup.uncaughtException(this, e);
+                logger.error("Exception while shutdown", e);
+            } catch (InterruptedException e) {
+                logger.error("Exception while shutdown", e);
             }
         }
     }
@@ -144,13 +150,19 @@ public class CAPServer extends Thread {
      *
      * @throws IOException
      */
-    private synchronized void stopProxyServer() throws IOException {
-        // Interrupt all Connection threads
-        connectionHandlerGroup.interrupt();
-        if (!serverSocket.isClosed())
-            serverSocket.close();
-        serverSocket = null;
-        Thread.currentThread().interrupt();
+    private synchronized void stopProxyServer() throws IOException, InterruptedException {
+        try {
+            // This will make the executor accept no new threads
+            // and finish all existing threads in the queue
+            executor.shutdown();
+            // Wait until all threads are finish
+            executor.awaitTermination(60, TimeUnit.SECONDS);
+        } finally {
+            if (!serverSocket.isClosed())
+                serverSocket.close();
+            serverSocket = null;
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

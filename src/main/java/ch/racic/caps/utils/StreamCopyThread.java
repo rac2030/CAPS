@@ -57,12 +57,12 @@ public class StreamCopyThread extends Thread {
         try {
             in.close();
         } catch (IOException e) {
-            logger.debug("IOException while closing InputStream", e);
+            // Ignore as it produces unneeded logs while fast test runs logger.debug("IOException while closing InputStream", e);
         }
         try {
             out.close();
         } catch (IOException e) {
-            logger.debug("IOException while closing OutputStream", e);
+            // Ignore as it produces unneeded logs while fast test runs logger.debug("IOException while closing OutputStream", e);
         }
     }
 
@@ -79,7 +79,7 @@ public class StreamCopyThread extends Thread {
                 out.flush();
             }
         } catch (IOException e) {
-            logger.error("IOException during transfer from input to output stream", e);
+            // Ignore as it produces unneeded logs while fast test runs logger.error("IOException during transfer from input to output stream", e);
             shutdown();
         }
 

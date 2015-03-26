@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 /**
  * Created by rac on 16.02.15. Inspiration and lots of code taken from Grinder Project HTTPProxyTCPProxyEngine class.
  */
-public class ConnectionHandler extends Thread {
+public class ConnectionHandler implements Runnable {
     private static final Logger logger = Logger.getLogger(ConnectionHandler.class);
     private static volatile long connectionCounter = 0;
     private final Socket clientSocket;
@@ -50,11 +50,8 @@ public class ConnectionHandler extends Thread {
      *
      * @param clientSocket
      * @param configuration
-     * @param connectionHandlerGroup
      */
-    public ConnectionHandler(final Socket clientSocket, final ICapsConfiguration configuration, ThreadGroup connectionHandlerGroup) {
-        // Calling super with the Thread group to add it
-        super(connectionHandlerGroup, "CapsConnectionHandler-" + ++connectionCounter);
+    public ConnectionHandler(final Socket clientSocket, final ICapsConfiguration configuration) {
         this.clientSocket = clientSocket;
         this.configuration = configuration;
         // Patterns taken from Grinder Project after studying how it handles the CONNECT command
@@ -71,7 +68,7 @@ public class ConnectionHandler extends Thread {
             interruptibleRun();
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            logger.info("ConnectionHandler thread (" + this.getName() + ") has been interrupted");
+            logger.info("ConnectionHandler thread has been interrupted");
         } finally {
             shutdown();
         }
@@ -94,8 +91,8 @@ public class ConnectionHandler extends Thread {
             int time = 0;
             while (true) {
                 while (time < configuration.getConnectionTimeout() && clientIn.available() == 0) {
-                    sleep(10);
-                    time += 10;
+                    Thread.currentThread().sleep(1);
+                    time += 1;
                 }
                 final boolean timeout = clientIn.available() == 0;
 

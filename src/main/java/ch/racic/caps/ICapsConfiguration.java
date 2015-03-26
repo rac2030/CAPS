@@ -73,5 +73,11 @@ public interface ICapsConfiguration {
      */
     public int getProxyListenerPort();
 
+    /**
+     * Get the desired thread pool size for the ConnectionHandler threads.
+     *
+     * @return
+     */
+    public int getThreadPoolSize();
 
 }

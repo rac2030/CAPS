@@ -67,6 +67,7 @@ public class CapsConfiguration implements ICapsConfiguration {
     private SSLContext proxySslContext;
     private int proxyListenerPort;
 
+    private int threadPoolSize;
 
     /**
      * Constructor for the reference implementation of the configuration object. To use a custom configuration object,
@@ -91,6 +92,7 @@ public class CapsConfiguration implements ICapsConfiguration {
         proxyKeyStoreType = DEFAULT_STORE_TYPE;
         proxyListenerPort = 0; // Use a random free port
         connectionTimeout = 5000;
+        threadPoolSize = 30; // Limit the pool size to 30 by default, projects can use a bigger pool if they know the limits
     }
 
     /**
@@ -425,6 +427,19 @@ public class CapsConfiguration implements ICapsConfiguration {
     public CapsConfiguration setProxyListenerPort(int proxyListenerPort) {
         this.proxyListenerPort = proxyListenerPort;
         return this;
+    }
+
+    @Override
+    public int getThreadPoolSize() {
+        return threadPoolSize;
+    }
+
+    /**
+     * Set the thread pool size to limit how many concurrent open connections can be handled, remaining will be queued.
+     * @param threadPoolSize
+     */
+    public void setThreadPoolSize(int threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
     }
 
     /**

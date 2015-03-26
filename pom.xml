@@ -13,7 +13,7 @@
 
     <groupId>ch.racic</groupId>
     <artifactId>caps</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>CAPS</name>
     <description>MITM Proxy Server for SSL and client certificate injection that can be used for testing with Internet
         Explorer or other selenium WebDrivers.
