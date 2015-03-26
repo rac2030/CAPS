@@ -11,7 +11,7 @@
 
     <groupId>ch.racic</groupId>
     <artifactId>caps</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
     <name>CAPS</name>
     <description>MITM Proxy Server for SSL and client certificate injection that can be used for testing with Internet
         Explorer or other selenium WebDrivers.
@@ -35,7 +35,7 @@
         <url>https://github.com/rac2030/CAPS</url>
         <connection>scm:git:git://github.com/rac2030/CAPS.git</connection>
         <developerConnection>scm:git:git@github.com:rac2030/CAPS.git</developerConnection>
-        <tag>caps-2.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
