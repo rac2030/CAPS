@@ -11,6 +11,6 @@ Lot of time gets wasted trough native automation of the dialogs while selecting 
 <dependency>
   <groupId>ch.racic</groupId>
   <artifactId>caps</artifactId>
-  <version>2.0-SNAPSHOT</version>
+  <version>2.0.0</version>
 </dependency>
 ```
