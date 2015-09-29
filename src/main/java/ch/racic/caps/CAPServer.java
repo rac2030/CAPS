@@ -85,7 +85,7 @@ public class CAPServer extends Thread {
      * @throws KeyStoreException
      * @throws ConfigurationException
      */
-    public static synchronized CAPServer bringItUpRunning(CapsConfiguration conf) throws InterruptedException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, ConfigurationException {
+    public static synchronized CAPServer bringItUpRunning(ICapsConfiguration conf) throws InterruptedException, CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, IOException, KeyManagementException, KeyStoreException, ConfigurationException {
         final CAPServer cs = new CAPServer(conf);
         cs.startProxyServer();
         cs.start();
