@@ -148,7 +148,7 @@ public class CapsConfiguration implements ICapsConfiguration {
         try {
             if ((new File(targetTrustStorePath + ".pwd")).exists()) {
                 // read password from file on file system
-                Files.toString(new File(targetTrustStorePath + ".pwd"), Charset.defaultCharset());
+                this.targetTrustStorePassword = Files.toString(new File(targetTrustStorePath + ".pwd"), Charset.defaultCharset());
             } else {
                 this.targetTrustStorePassword = IOUtils.resourceAsString(targetTrustStorePath + ".pwd");
             }
@@ -160,7 +160,7 @@ public class CapsConfiguration implements ICapsConfiguration {
             try {
                 if ((new File(alternatePwdPath)).exists()) {
                     // read password from file on file system
-                    Files.toString(new File(alternatePwdPath), Charset.defaultCharset());
+                    this.targetTrustStorePassword = Files.toString(new File(alternatePwdPath), Charset.defaultCharset());
                 } else {
                     this.targetTrustStorePassword = IOUtils.resourceAsString(alternatePwdPath);
                 }
@@ -244,10 +244,10 @@ public class CapsConfiguration implements ICapsConfiguration {
         this.targetKeyStorePath = targetKeyStorePath;
         // Try if there is a file with the same name that ends with .pwd
         try {
-            if ((new File(targetKeyStorePassword + ".pwd")).exists()) {
-                Files.toString(new File(targetKeyStorePassword + ".pwd"), Charset.defaultCharset());
+            if ((new File(targetKeyStorePath + ".pwd")).exists()) {
+                this.targetKeyStorePassword = Files.toString(new File(targetKeyStorePath + ".pwd"), Charset.defaultCharset());
             } else {
-                this.targetKeyStorePassword = IOUtils.resourceAsString(targetKeyStorePassword + ".pwd");
+                this.targetKeyStorePassword = IOUtils.resourceAsString(targetKeyStorePath + ".pwd");
             }
         } catch (IOException ignoredException) {
             // Ignore this exception, user will need to set password or password file on his own
@@ -256,7 +256,7 @@ public class CapsConfiguration implements ICapsConfiguration {
             final String alternatePwdPath = FileUtils.replaceExtension(targetKeyStorePath, "pwd");
             try {
                 if ((new File(alternatePwdPath)).exists()) {
-                    Files.toString(new File(alternatePwdPath), Charset.defaultCharset());
+                    this.targetKeyStorePassword = Files.toString(new File(alternatePwdPath), Charset.defaultCharset());
                 } else {
                     this.targetKeyStorePassword = IOUtils.resourceAsString(alternatePwdPath);
                 }
