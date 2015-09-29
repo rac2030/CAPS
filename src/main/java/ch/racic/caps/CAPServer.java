@@ -158,7 +158,7 @@ public class CAPServer extends Thread {
             // Wait until all threads are finish
             executor.awaitTermination(60, TimeUnit.SECONDS);
         } finally {
-            if (!serverSocket.isClosed())
+            if (serverSocket != null && !serverSocket.isClosed())
                 serverSocket.close();
             serverSocket = null;
             Thread.currentThread().interrupt();

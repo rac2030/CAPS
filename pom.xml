@@ -12,7 +12,7 @@
 
     <groupId>ch.racic</groupId>
     <artifactId>caps</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.2</version>
     <name>CAPS</name>
     <description>MITM Proxy Server for SSL and client certificate injection that can be used for testing with Internet
         Explorer or other selenium WebDrivers.
@@ -104,6 +104,12 @@
             <artifactId>hamcrest-all</artifactId>
             <version>1.3</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
         </dependency>
 
     </dependencies>

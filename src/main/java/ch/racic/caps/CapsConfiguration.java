@@ -8,13 +8,17 @@ package ch.racic.caps;
 
 import ch.racic.caps.utils.FileUtils;
 import ch.racic.caps.utils.IOUtils;
+import com.google.common.io.Files;
 import org.apache.log4j.Logger;
 
 import javax.naming.ConfigurationException;
 import javax.net.ssl.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
+import java.nio.charset.Charset;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -142,14 +146,24 @@ public class CapsConfiguration implements ICapsConfiguration {
         this.targetTrustStorePath = targetTrustStorePath;
         // Try if there is a file with the same name that ends with .pwd
         try {
-            this.targetTrustStorePassword = IOUtils.resourceAsString(targetTrustStorePath + ".pwd");
+            if ((new File(targetTrustStorePath + ".pwd")).exists()) {
+                // read password from file on file system
+                Files.toString(new File(targetTrustStorePath + ".pwd"), Charset.defaultCharset());
+            } else {
+                this.targetTrustStorePassword = IOUtils.resourceAsString(targetTrustStorePath + ".pwd");
+            }
         } catch (IOException ignoredException) {
             // Ignore this exception, user will need to set password or password file on his own
             logger.debug("Try to get password from default location, failed to load the file " + targetTrustStorePath + ".pwd", ignoredException);
             // Try it without the original extension
             final String alternatePwdPath = FileUtils.replaceExtension(targetTrustStorePath, "pwd");
             try {
-                this.targetTrustStorePassword = IOUtils.resourceAsString(alternatePwdPath);
+                if ((new File(alternatePwdPath)).exists()) {
+                    // read password from file on file system
+                    Files.toString(new File(alternatePwdPath), Charset.defaultCharset());
+                } else {
+                    this.targetTrustStorePassword = IOUtils.resourceAsString(alternatePwdPath);
+                }
             } catch (IOException ignoredException2) {
                 // Ignore this exception, user will need to set password or password file on his own
                 logger.debug("Try to get password from second default location, failed to load the file " + alternatePwdPath, ignoredException2);
@@ -198,7 +212,12 @@ public class CapsConfiguration implements ICapsConfiguration {
             // use the cached instance
             return targetTrustManager;
         } else {
-            InputStream keyInput = getClass().getClassLoader().getResourceAsStream(targetTrustStorePath);
+            InputStream keyInput = null;
+            if ((new File(targetTrustStorePath)).exists()) {
+                new FileInputStream(new File(targetTrustStorePath));
+            } else {
+                keyInput = getClass().getClassLoader().getResourceAsStream(targetTrustStorePath);
+            }
             KeyStore keyStore = KeyStore.getInstance(targetTrustStoreType);
             keyStore.load(keyInput, targetTrustStorePassword.toCharArray());
             keyInput.close();
@@ -225,14 +244,22 @@ public class CapsConfiguration implements ICapsConfiguration {
         this.targetKeyStorePath = targetKeyStorePath;
         // Try if there is a file with the same name that ends with .pwd
         try {
-            this.targetKeyStorePassword = IOUtils.resourceAsString(targetKeyStorePath + ".pwd");
+            if ((new File(targetKeyStorePassword + ".pwd")).exists()) {
+                Files.toString(new File(targetKeyStorePassword + ".pwd"), Charset.defaultCharset());
+            } else {
+                this.targetKeyStorePassword = IOUtils.resourceAsString(targetKeyStorePassword + ".pwd");
+            }
         } catch (IOException ignoredException) {
             // Ignore this exception, user will need to set password or password file on his own
             logger.debug("Try to get password from default location, failed to load the file " + targetKeyStorePath + ".pwd", ignoredException);
             // Try it without the original extension
             final String alternatePwdPath = FileUtils.replaceExtension(targetKeyStorePath, "pwd");
             try {
-                this.targetKeyStorePassword = IOUtils.resourceAsString(alternatePwdPath, "ASCII");
+                if ((new File(alternatePwdPath)).exists()) {
+                    Files.toString(new File(alternatePwdPath), Charset.defaultCharset());
+                } else {
+                    this.targetKeyStorePassword = IOUtils.resourceAsString(alternatePwdPath);
+                }
             } catch (IOException ignoredException2) {
                 // Ignore this exception, user will need to set password or password file on his own
                 logger.debug("Try to get password from second default location, failed to load the file " + alternatePwdPath, ignoredException2);
@@ -281,7 +308,12 @@ public class CapsConfiguration implements ICapsConfiguration {
         } else if (targetKeyManager != null) {
             return targetKeyManager;
         } else {
-            InputStream keyInput = getClass().getClassLoader().getResourceAsStream(targetKeyStorePath);
+            InputStream keyInput = null;
+            if ((new File(targetKeyStorePath)).exists()) {
+                new FileInputStream(new File(targetKeyStorePath));
+            } else {
+                keyInput = getClass().getClassLoader().getResourceAsStream(targetKeyStorePath);
+            }
             KeyStore keyStore = KeyStore.getInstance(targetKeyStoreType);
             keyStore.load(keyInput, targetKeyStorePassword.toCharArray());
             keyInput.close();
@@ -436,6 +468,7 @@ public class CapsConfiguration implements ICapsConfiguration {
 
     /**
      * Set the thread pool size to limit how many concurrent open connections can be handled, remaining will be queued.
+     *
      * @param threadPoolSize
      */
     public void setThreadPoolSize(int threadPoolSize) {
