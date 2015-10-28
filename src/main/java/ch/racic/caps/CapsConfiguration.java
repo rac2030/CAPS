@@ -214,7 +214,7 @@ public class CapsConfiguration implements ICapsConfiguration {
         } else {
             InputStream keyInput = null;
             if ((new File(targetTrustStorePath)).exists()) {
-                new FileInputStream(new File(targetTrustStorePath));
+                keyInput = new FileInputStream(new File(targetTrustStorePath));
             } else {
                 keyInput = getClass().getClassLoader().getResourceAsStream(targetTrustStorePath);
             }
@@ -310,7 +310,7 @@ public class CapsConfiguration implements ICapsConfiguration {
         } else {
             InputStream keyInput = null;
             if ((new File(targetKeyStorePath)).exists()) {
-                new FileInputStream(new File(targetKeyStorePath));
+                keyInput = new FileInputStream(new File(targetKeyStorePath));
             } else {
                 keyInput = getClass().getClassLoader().getResourceAsStream(targetKeyStorePath);
             }
